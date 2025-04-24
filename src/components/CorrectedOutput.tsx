@@ -3,13 +3,15 @@ import { Clipboard, Check, Edit2, Save } from 'lucide-react';
 
 interface CorrectedOutputProps {
   text: string;
+  highlightedText?: string; // Nouveau prop pour le texte avec les corrections surlignées
   isLoading: boolean;
   isCorrected: boolean;
-  onTextChange?: (newText: string) => void; // Callback pour informer le parent des changements
+  onTextChange?: (newText: string) => void;
 }
 
 const CorrectedOutput: React.FC<CorrectedOutputProps> = ({ 
   text, 
+  highlightedText,
   isLoading, 
   isCorrected,
   onTextChange 
@@ -24,9 +26,9 @@ const CorrectedOutput: React.FC<CorrectedOutputProps> = ({
   }, [text]);
 
   const copyToClipboard = () => {
-    if (!editedText) return;
+    if (!text) return;
     
-    navigator.clipboard.writeText(editedText).then(() => {
+    navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -104,10 +106,14 @@ const CorrectedOutput: React.FC<CorrectedOutputProps> = ({
             onChange={handleTextChange}
             className="w-full min-h-[300px] p-4 font-serif text-base leading-relaxed border border-blue-500 dark:border-blue-600 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
-        ) : text ? (
+        ) : !isEditing && text ? (
           <div 
             className="w-full min-h-[300px] p-4 font-serif text-base leading-relaxed border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors duration-200 overflow-auto"
-            dangerouslySetInnerHTML={{ __html: editedText.replace(/\n/g, '<br>') }} 
+            dangerouslySetInnerHTML={{ 
+              __html: highlightedText 
+                ? highlightedText.replace(/\n/g, '<br>')
+                : text.replace(/\n/g, '<br>')
+            }} 
           />
         ) : (
           <div className="text-gray-400 dark:text-gray-500 h-full min-h-[300px] flex items-center justify-center border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800">
